@@ -10,13 +10,13 @@ use crate::prelude::*;
 /// and a default resource in case the persistent resource is created for the first time.
 ///
 /// They are synchronized with the disk from the moment of their creation.
-#[derive(Component, Debug, Resource)]
+#[derive(Component, Debug, Resource, Reflect)]
 pub struct Persistent<R: Resource + Serialize + DeserializeOwned> {
     pub(crate) name: String,
     pub(crate) format: StorageFormat,
     pub(crate) storage: Storage,
     pub(crate) resource: Option<R>,
-    pub(crate) default: Option<Box<R>>,
+    pub(crate) default: Option<R>,
     pub(crate) revert_to_default_on_deserialization_errors: bool,
 }
 
@@ -107,7 +107,7 @@ impl<R: Resource + Serialize + DeserializeOwned> Persistent<R> {
             } else {
                 None
             };
-            let default = if revertible { Some(Box::new(default)) } else { None };
+            let default = if revertible { Some(default) } else { None };
 
             return Ok(Persistent {
                 name,
@@ -119,7 +119,7 @@ impl<R: Resource + Serialize + DeserializeOwned> Persistent<R> {
             });
         }
 
-        let default = if revertible { Some(Box::new(default)) } else { None };
+        let default = if revertible { Some(default) } else { None };
 
         if !loaded {
             return Ok(Persistent {
